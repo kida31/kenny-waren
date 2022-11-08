@@ -74,28 +74,16 @@ function menuItem1() {
 
     ui.alert("Gute Arbeit! Warte kurz...")
 
-    const data = getShoppingList(bestell.getName(), bestand.getName(), joinCol, istCol, sollCol, sizeCol)
+    const data = _getShoppingList(bestell, bestand, joinCol, istCol, sollCol, sizeCol)
     createSheet("Neue Bestellung", data)
 
     ui.alert("Fertig!")
 }
 
-
-function menuItem2() {
-    // var widget = HtmlService.createHtmlOutputFromFile("prompt2.html");
-    // SpreadsheetApp.getUi().showModalDialog(widget, "Send feedback");
-
-    //var widget = HtmlService.createHtmlOutputFromFile("prompt.html");
-    const tmp = HtmlService.createTemplateFromFile("prompt2.html");
-    tmp.spreadSheetId = SpreadsheetApp.getActiveSpreadsheet().getId();
-
-    SpreadsheetApp.getUi().showModalDialog(tmp.evaluate(), "Send feedback");
-}
-
 /**
  * Erstell Bestellung aus Bestand und Bestellliste
- * @param bestellSheet Name des Sheets Bestellliste
- * @param bestandSheet Name des Sheets Bestand
+ * @param bestellSheetName Name des Sheets Bestellliste
+ * @param bestandSheetName Name des Sheets Bestand
  * @param joinSpalte Eindeutiger Spaltenname zur Bestimmung des Artikels
  * @param istSpalte Spaltenname zur Grösse des Bestandes
  * @param sollSpalte Spaltenname zur Grösse der Kapazität
@@ -103,35 +91,19 @@ function menuItem2() {
  * @returns {[]|string[][]} Die Values zur Bestellung
  * @customfunction
  */
-function getShoppingList(bestellSheet, bestandSheet, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
-    const parseSheet = (sheetName) => {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
-        const sheet = ss.getSheetByName(sheetName);
-        if (sheet != null) {
-            return parse(sheet.getDataRange().getValues());
-        }
-        throw new Error("Sheet " + sheetName + " not found");
-    }
+function getShoppingList(bestellSheetName, bestandSheetName, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    return _getShoppingList(
+        ss.getSheetByName(bestellSheetName),
+        ss.getSheetByName(bestandSheetName),
+        joinSpalte, istSpalte, sollSpalte, sizeSpalte);
+}
 
-    const DATA = [['Artikel-Nr', 'Artikel Name', 'Verpackungseinheit', 'Kapazität (Einzel)'],
-        ['BJ000', 'Trash', '1', '0'],
-        ['BJ015', 'Green Apple Syrup', '6', '18'],
-        ['BJ028', 'Pineapple Syrup', '6', '20']
-    ]
+function _getShoppingList(bestellSheet, bestandSheet, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
+    const bestell = parse(bestellSheet.getDataRange().getValues());
+    const bestand = parse(bestandSheet.getDataRange().getValues());
 
-    const BESTAND = [['Artikel Name', 'Ist'],
-        ['Green Apple Syrup', '12'],
-        ['Pineapple Syrup', '8']
-    ]
-
-    let bestell = parse(DATA);
-    let bestand = parse(BESTAND);
-
-    bestell = parseSheet(bestellSheet);
-    bestand = parseSheet(bestandSheet);
-
-
-    const shoppingList = _getShoppingList(bestell, bestand,
+    const shoppingList = _createDiffList(bestell, bestand,
         joinSpalte,
         istSpalte,
         sollSpalte,
@@ -147,16 +119,4 @@ function createSheet(sheetName, data) {
     for (const row of data) {
         newSheet.appendRow(row)
     }
-}
-
-function processForm(form) {
-    const {bestellSheet, bestandSheet, joinSpalte, istSpalte, sollSpalte, setSpalte} = form
-    if (bestellSheet === undefined || bestandSheet === undefined || joinSpalte === undefined
-        || istSpalte === undefined || sollSpalte === undefined || setSpalte === undefined) {
-        throw new Error("missing parameters")
-    }
-    const data = getShoppingList(bestellSheet, bestandSheet, joinSpalte, istSpalte, sollSpalte, setSpalte)
-    createSheet("Neue Bestellung", data)
-
-    SpreadsheetApp.getUi().alert("Neues Sheet erstellt. (" + newSheet.getName() + ")");
 }

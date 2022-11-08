@@ -86,7 +86,7 @@ function calcBundlesNeeded(current, currentCol, target, targetCol, sizeCol) {
     return (needQ - haveQ) / sizeQ;
 }
 
-function _getShoppingList(targetData, haveData, joinCol, haveCol, needCol, sizeCol) {
+function _createDiffList(targetData, haveData, joinCol, haveCol, needCol, sizeCol) {
     const result = []
 
     for (const targetItem of targetData) {
