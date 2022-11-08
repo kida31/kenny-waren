@@ -4,8 +4,8 @@ function onOpen() {
     var ui = SpreadsheetApp.getUi();
     // Or DocumentApp or FormApp.
 
-    ui.createMenu('Custom Menu')
-        .addItem('Toast', 'menuItem1')
+    ui.createMenu('T&T')
+        .addItem('Bestellung generieren', 'menuItem1')
         .addSeparator()
         .addToUi();
 }
