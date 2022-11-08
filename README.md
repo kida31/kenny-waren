@@ -11,8 +11,8 @@ Add `Code.js` and `dataOperations.js` to your Google Sheet Project.
 
 - Move to your recent inventory
 - Go to the newly created custom menu
-- Click on `Bestellung generieren`
-- Enter the sheet names and column names as requested. There will be a final confirmation prompt
+- Click on `T&T > Bestellung generieren...`
+- Select the sheet and column names as prompted.
 
 ### Option B - Function
 ```js
