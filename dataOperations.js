@@ -100,7 +100,7 @@ function _createDiffList(targetData, haveData, joinCol, haveCol, needCol, sizeCo
             continue;
         }
 
-        const out = {...targetItem, ...haveItem, 'must-buy': q}
+        const out = {...targetItem, ...haveItem, 'to-buy': q}
 
         //delete out[haveCol]
         //delete out[needCol]
