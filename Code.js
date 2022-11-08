@@ -5,7 +5,7 @@ function onOpen() {
     // Or DocumentApp or FormApp.
 
     ui.createMenu('T&T')
-        .addItem('Bestellung generieren', 'menuItem1')
+        //.addItem('Bestellung generieren', 'menuItem1')
         .addItem("HTML-Form", 'menuItem2')
         .addToUi();
 }
