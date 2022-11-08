@@ -24,3 +24,4 @@ For example like this:
 # Into your Google Sheet Cell
 =getShoppingList("Bestell1", "Bestand1", "Artikel Name", "Ist-Spalte", "Soll-Kapazität", "Verpackungseinheit")
 ```
+[Example Google Sheet](https://docs.google.com/spreadsheets/d/1vHw9plhhQN4ENtLNp3ZcT7Lr9d5eEK-ONHCSTrcYc8g/)
