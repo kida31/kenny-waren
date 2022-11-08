@@ -26,10 +26,17 @@
     console.log("Retrieving data from apps script...")
     const data = JSON.parse(<?= JSON.stringify(data) ?>)
 
-
-
     function setup() {
-        function createOptions(id, text, data) {
+
+        function createOptions(data) {
+            return data.map(item => {
+                const option = document.createElement("option");
+                option.value = item;
+                option.textContent = item;
+                return option
+            })
+        }
+        function createDiv(id, text, data, onchange) {
             const div = document.createElement("div");
             const label = document.createElement("label");
             label.for = id;
@@ -38,13 +45,19 @@
             const select = document.createElement("select");
             select.name = id;
             select.id = id;
-
-            for (const item of data) {
-                const option = document.createElement("option");
-                option.value = item;
-                option.textContent = item;
-                select.append(option)
+            if (onchange) {
+                select.onchange = onchange;
             }
+
+            select.append(...createOptions(data));
+            select.prepend((() => {
+                const o = document.createElement("option")
+                o.value = null
+                o.disabled = true
+                o.selected = true
+                o.textContent = "-Auswählen-"
+                return o
+            })())
 
             div.append(label, select)
             div.classList.add("optionsDiv")
@@ -55,23 +68,33 @@
         const {active, colDict} = data
         console.log(colDict)
 
-        const colSet = new Set()
-
-        for (const key in colDict){
-            colDict[key].forEach(h => colSet.add(h))
-        }
-
         const parent = document.getElementById("form")
+        const sheets = Object.keys(colDict)
         parent.append(
-            createOptions("order", "Bestellliste", Object.keys(colDict)),
-            createOptions("inventory", "Bestandliste", Object.keys(colDict)),
-            createOptions("join", "Identifier (ID/Name)", colSet),
-            createOptions("current", "Ist (Bestand)", colSet),
-            createOptions("target", "Soll (Kapazität)", colSet),
-            createOptions("size", "Menge (Verpackungseinheit)", colSet)
-        )
+            createDiv("order", "Bestellliste", sheets,
+                () => {
+                    const affected = ["target", "size"]
+                    const myValue = document.getElementById("order").value
+                    affected.map(s => document.getElementById(s)).forEach(s => {
+                        s.innerHTML = '';
+                        s.append(...createOptions(colDict[myValue]))
+                    })
+                }),
+            createDiv("inventory", "Bestandliste", sheets,
+                () => {
+                    const affected = ["current", "join"]
+                    const myValue = document.getElementById("inventory").value
+                    affected.map(s => document.getElementById(s)).forEach(s => {
+                        s.innerHTML = '';
+                        s.append(...createOptions(colDict[myValue]))
+                    })
+                }),
 
-        document.getElementById("inventory").value = active
+            createDiv("target", "Soll (Kapazität)", []),
+            createDiv("size", "Menge (Verpackungseinheit)", []),
+            createDiv("join", "Identifier (ID/Name)", []),
+            createDiv("current", "Ist (Bestand)", []),
+        )
 
         const button = document.createElement("input")
         button.type = "button"
@@ -82,7 +105,7 @@
             google.script.run.withFailureHandler((e) => {
                 alert(e)
                 document.getElementById("errOut").textContent = e
-            }).withSuccessHandler((res) => alert(res)).getAndCreate(
+            }).withSuccessHandler((res) => alert(res)).processForm(
                 get("order"), get("inventory"), get("join"), get("current"), get("target"), get("size"))
         }
 
