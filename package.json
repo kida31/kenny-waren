@@ -1,0 +1,11 @@
+{
+  "name": "server",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "@types/google-apps-script": "^1.0.56"
+  }
+}
