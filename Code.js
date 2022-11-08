@@ -122,7 +122,7 @@ function getShoppingList(bestellSheetName, bestandSheetName, joinSpalte, istSpal
         joinSpalte, istSpalte, sollSpalte, sizeSpalte);
 }
 
-function getAndCreate(bestellSheetName, bestandSheetName, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
+function processForm(bestellSheetName, bestandSheetName, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
     const data = getShoppingList(bestellSheetName, bestandSheetName, joinSpalte, istSpalte, sollSpalte, sizeSpalte)
     createSheet("NeueBestellung", data)
     SpreadsheetApp.getUi().alert("Fertig!")
