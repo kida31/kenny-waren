@@ -98,9 +98,10 @@
 
         const button = document.createElement("input")
         button.type = "button"
-        button.value = "Erstellen"
+        button.value = "Bestellung generieren"
         button.onclick = () => {
             const get = (id) => document.getElementById(id).value
+            button.value = "Einen Moment..."
 
             google.script.run.withFailureHandler((e) => {
                 alert(e)
