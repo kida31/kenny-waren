@@ -6,7 +6,7 @@ function onOpen() {
 
     ui.createMenu('T&T')
         .addItem('Bestellung generieren', 'menuItem1')
-        .addSeparator()
+        .addItem("HTML-Form", 'menuItem2')
         .addToUi();
 }
 
@@ -66,7 +66,7 @@ function menuItem1() {
     if (!res) return;
     const sizeCol = res
 
-    if (ui.alert("Bestätigung",`Id=${joinCol}\n`
+    if (ui.alert("Bestätigung", `Id=${joinCol}\n`
         + `Bestell=${bestell.getName()}:${sollCol}\n`
         + `Bestand=${bestand.getName()}:${istCol}\n`
         + `Einheit=${bestell.getName()}:${sizeCol}\n`,
@@ -78,6 +78,29 @@ function menuItem1() {
     createSheet("Neue Bestellung", data)
 
     ui.alert("Fertig!")
+}
+
+function menuItem2() {
+    const ui = HtmlService.createTemplateFromFile('prompt.html')
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const all_sheets = ss.getSheets()
+    const active = ss.getActiveSheet();
+
+    const colSet = new Set();
+    const colDict = {}
+    all_sheets.forEach(s => {
+        const headers = s.getDataRange().getValues()[0].filter(x => x !== "");
+        colDict[s.getName()] = headers;
+        headers.forEach(h => colSet.add(h));
+    })
+
+    ui.data = {
+        active: ss.getActiveSheet().getName(),
+        colDict
+    }
+
+    SpreadsheetApp.getUi().showModalDialog(ui.evaluate(), "Bestellung generieren")
 }
 
 /**
@@ -97,6 +120,12 @@ function getShoppingList(bestellSheetName, bestandSheetName, joinSpalte, istSpal
         ss.getSheetByName(bestellSheetName),
         ss.getSheetByName(bestandSheetName),
         joinSpalte, istSpalte, sollSpalte, sizeSpalte);
+}
+
+function getAndCreate(bestellSheetName, bestandSheetName, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
+    const data = getShoppingList(bestellSheetName, bestandSheetName, joinSpalte, istSpalte, sollSpalte, sizeSpalte)
+    createSheet("NeueBestellung", data)
+    SpreadsheetApp.getUi().alert("Fertig!")
 }
 
 function _getShoppingList(bestellSheet, bestandSheet, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
@@ -119,4 +148,9 @@ function createSheet(sheetName, data) {
     for (const row of data) {
         newSheet.appendRow(row)
     }
+}
+
+function hello() {
+    const ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getName()
+    return ss
 }
