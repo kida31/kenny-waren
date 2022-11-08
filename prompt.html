@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+</head>
+<script>
+    function displayToast() {
+        var name = document.getElementById('name').value;
+        google.script.run.displayToast(name);
+    }
+    function callback(){
+        var button = document.getElementById("button")
+        button.value = "DISPLAY TOAST NOW!"
+    }
+</script>
+<body>
+    What is your name?
+    <input type="text" id="name">
+    <br>
+    <input id="button" type="button" class="button" value="Display toast" onclick="displayToast()">
+</body>
+</html>

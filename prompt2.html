@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <script>
+        function submitForm() {
+            google.script.run.appendRowFromFormSubmit(document.getElementById("feedbackForm"));
+            document.getElementById("form").style.display = "none";
+            document.getElementById("thanks").style.display = "block";
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <div id="form">
+            <h1>Enter feedback</h1>
+            <form id="feedbackForm">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name"><br><br>
+                <label for="feedback">Feedback</label>
+                <input type="text" id="feedback" name="feedback"><br><br>
+                <div>
+                    <label for="rating">Are you satisfied?</label><br>
+                    <input type="radio" id="yes" name="rating" value="Yes">
+                    <label for="yes">Yes</label><br>
+                    <input type="radio" id="no" name="rating" value="No">
+                    <label for="no">No</label><br><br>
+                    <input type="button" value="Submit feedback" onclick="alert('Hello');">
+                    <input id="myb" type="button" value="DeSubmit feedback" onclick="google.script.host.close()">
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="thanks" style="display: none;">
+        <p>Thank you for sumbitting feedback!</p>
+    </div>
+</body>
+<script>
+    const ssid = "1vHw9plhhQN4ENtLNp3ZcT7Lr9d5eEK-ONHCSTrcYc8g"
+    //const ssid = <?= JSON.stringify(spreadSheetId) ?>
+    alert("!"+ssid+"!")
+
+    //google.script.run.withSuccessHandler((res) => alert("ok" + res)).withFailureHandler((e) => alert(e)).ping()
+    google.script.run
+        .withSuccessHandler((res) => sheetSelection(res, (sheet1, sheet2) => {
+            google.script.run.js_getColumns(ssid, [sheet1, sheet2])
+        }))
+        .withFailureHandler((e) => {
+            document.getElementById('form').remove();
+            alert(e);
+        }).js_getSheetNames(ssid)
+
+
+
+    document.getElementById("myb").value = ssid
+
+    function sheetSelection(sheets, callback) {
+        const form = document.createElement('form');
+
+        const sub = (id, text) => {
+            const label = document.createElement('label')
+            label.for = id;
+            label.textContent = text;
+            form.append(label)
+
+            const select = document.createElement('select')
+            select.id = id;
+            select.name = id;
+            for (const sheet of sheets) {
+                const option = document.createElement('option')
+                option.value = sheet
+                option.textContent = sheet
+                select.append(option)
+            }
+            form.append(select)
+            return select
+        }
+
+        const s1 = sub('bestand', "Bestandliste")
+        const s2 = sub("bestell", "Bestellliste")
+
+        const input = document.createElement('input')
+        input.type = "button"
+        input.onclick = () => callback(s1.value, s2.value);
+        input.value = "Submit"
+        form.append(input)
+
+        document.getElementById("feedbackForm").replaceWith(form)
+    }
+
+</script>
+</html>
