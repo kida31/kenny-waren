@@ -89,11 +89,10 @@
                         s.append(...createOptions(colDict[myValue]))
                     })
                 }),
-
             createDiv("target", "Soll (Kapazität)", []),
             createDiv("size", "Menge (Verpackungseinheit)", []),
-            createDiv("join", "Identifier (ID/Name)", []),
             createDiv("current", "Ist (Bestand)", []),
+            createDiv("join", "Identifier (ID/Name)", []),
         )
 
         const button = document.createElement("input")
@@ -103,11 +102,10 @@
             const get = (id) => document.getElementById(id).value
             button.value = "Einen Moment..."
 
-            google.script.run.withFailureHandler((e) => {
-                alert(e)
-                document.getElementById("errOut").textContent = e
-            }).withSuccessHandler((res) => alert(res)).processForm(
-                get("order"), get("inventory"), get("join"), get("current"), get("target"), get("size"))
+            google.script.run
+                .withFailureHandler((e) => {alert(e); document.getElementById("errOut").textContent = e;})
+                .withSuccessHandler((res) => alert(res))
+                .processForm(get("order"), get("inventory"), get("join"), get("current"), get("target"), get("size"))
         }
 
         parent.append(button)
