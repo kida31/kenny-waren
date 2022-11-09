@@ -1,18 +1,18 @@
 function onOpen() {
+    // ... 
     addMenuTNT();
 }
 
 function addMenuTNT(){
     var ui = SpreadsheetApp.getUi();
-    // Or DocumentApp or FormApp.
 
     ui.createMenu('T&T')
         //.addItem('Bestellung (manual)', 'menuItem1')
-        .addItem("Bestellung generieren...", 'menuItem2')
+        .addItem("Bestellung generieren...", 'menuBestellungGenerieren')
         .addToUi();
 }
 
-function menuItem2() {
+function menuBestellungGenerieren() {
     const ui = HtmlService.createTemplateFromFile('prompt.html')
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
