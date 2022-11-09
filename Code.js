@@ -1,6 +1,8 @@
-//import {main} from "./dataOperations.js";
-
 function onOpen() {
+    addMenuTNT();
+}
+
+function addMenuTNT(){
     var ui = SpreadsheetApp.getUi();
     // Or DocumentApp or FormApp.
 
@@ -8,76 +10,6 @@ function onOpen() {
         //.addItem('Bestellung (manual)', 'menuItem1')
         .addItem("Bestellung generieren...", 'menuItem2')
         .addToUi();
-}
-
-function menuItem1() {
-    const ui = SpreadsheetApp.getUi();
-
-    function prompt(title, content) {
-        var response = ui.prompt(title, content, ui.ButtonSet.OK);
-
-        if (response.getSelectedButton() === ui.Button.CANCEL) {
-            return null
-        }
-
-        return response.getResponseText();
-    }
-
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-
-    // BESTAND
-    const bestand = ss.getActiveSheet();
-    if (ui.alert(bestand.getName() + " als Bestandsliste?", ui.ButtonSet.OK_CANCEL) === ui.Button.CANCEL) return;
-
-    const all_sheets = ss.getSheets().map(s => s.getName());
-
-    // BESTELL
-    let res = prompt("Bestellliste", all_sheets.join(", "))
-    if (!res) return;
-    const bestell = ss.getSheetByName(res);
-
-    // ...
-    const columns = []
-    const add = s => {
-        const headers = s.getRange('1:1').getValues()[0]
-        headers.filter(h => h !== "").forEach(h => columns.push(h))
-    }
-    add(bestand)
-    add(bestell)
-
-    // Identifier to join on
-    res = prompt("Eindeutiger Name in...", columns.join(', '))
-    if (!res) return;
-    const joinCol = res
-
-
-    // IST-MENGE
-    res = prompt("Ist-Menge in...", columns.join(', '))
-    if (!res) return;
-    const istCol = res
-
-    // SOLL-MENGE
-    res = prompt("Soll-Menge in...", columns.join(', '))
-    if (!res) return;
-    const sollCol = res
-
-    // VERPACKUNGSEINHEIT
-    res = prompt("Verpackungseinheit in...", columns.join(', '))
-    if (!res) return;
-    const sizeCol = res
-
-    if (ui.alert("Bestätigung", `Id=${joinCol}\n`
-        + `Bestell=${bestell.getName()}:${sollCol}\n`
-        + `Bestand=${bestand.getName()}:${istCol}\n`
-        + `Einheit=${bestell.getName()}:${sizeCol}\n`,
-        ui.ButtonSet.OK_CANCEL) === ui.Button.CANCEL) return;
-
-    ui.alert("Gute Arbeit! Warte kurz...")
-
-    const data = _getShoppingList(bestell, bestand, joinCol, istCol, sollCol, sizeCol)
-    createSheet("Neue Bestellung", data)
-
-    ui.alert("Fertig!")
 }
 
 function menuItem2() {
@@ -103,6 +35,7 @@ function menuItem2() {
     SpreadsheetApp.getUi().showModalDialog(ui.evaluate(), "Bestellung generieren")
 }
 
+
 /**
  * Erstell Bestellung aus Bestand und Bestellliste
  * @param bestellSheetName Name des Sheets Bestellliste
@@ -120,12 +53,6 @@ function getShoppingList(bestellSheetName, bestandSheetName, joinSpalte, istSpal
         ss.getSheetByName(bestellSheetName),
         ss.getSheetByName(bestandSheetName),
         joinSpalte, istSpalte, sollSpalte, sizeSpalte);
-}
-
-function processForm(bestellSheetName, bestandSheetName, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
-    const data = getShoppingList(bestellSheetName, bestandSheetName, joinSpalte, istSpalte, sollSpalte, sizeSpalte)
-    createSheet("NeueBestellung", data)
-    SpreadsheetApp.getUi().alert("Fertig!")
 }
 
 function _getShoppingList(bestellSheet, bestandSheet, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
@@ -150,7 +77,8 @@ function createSheet(sheetName, data) {
     }
 }
 
-function hello() {
-    const ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getName()
-    return ss
+function processForm(bestellSheetName, bestandSheetName, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
+    const data = getShoppingList(bestellSheetName, bestandSheetName, joinSpalte, istSpalte, sollSpalte, sizeSpalte)
+    createSheet("NeueBestellung", data)
+    SpreadsheetApp.getUi().alert("Fertig!")
 }
