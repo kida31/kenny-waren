@@ -3,7 +3,7 @@ function onOpen() {
     addMenuTNT();
 }
 
-function addMenuTNT(){
+function addMenuTNT() {
     var ui = SpreadsheetApp.getUi();
 
     ui.createMenu('T&T')
@@ -16,8 +16,7 @@ function menuBestellungGenerieren() {
     const ui = HtmlService.createTemplateFromFile('prompt.html')
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const all_sheets = ss.getSheets()
-    const active = ss.getActiveSheet();
+    const all_sheets = ss.getSheets();
 
     const colSet = new Set();
     const colDict = {}
@@ -28,8 +27,9 @@ function menuBestellungGenerieren() {
     })
 
     ui.data = {
-        active: ss.getActiveSheet().getName(),
-        colDict
+        colDict,
+        inventoryDefault: ss.getActiveSheet().getName(),
+        productsDefault: "Produktkatalog",
     }
 
     SpreadsheetApp.getUi().showModalDialog(ui.evaluate(), "Bestellung generieren")
@@ -77,8 +77,9 @@ function createSheet(sheetName, data) {
     }
 }
 
-function processForm(bestellSheetName, bestandSheetName, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
-    const data = getShoppingList(bestellSheetName, bestandSheetName, joinSpalte, istSpalte, sollSpalte, sizeSpalte)
+function processForm(parameters) {
+    const {bestellSheetName, bestandSheetName, idSpalte, istSpalte, sollSpalte, sizeSpalte} = parameters
+    const data = getShoppingList(bestellSheetName, bestandSheetName, idSpalte, istSpalte, sollSpalte, sizeSpalte)
     createSheet("NeueBestellung", data)
     SpreadsheetApp.getUi().alert("Fertig!")
 }

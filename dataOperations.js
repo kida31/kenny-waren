@@ -61,50 +61,38 @@ function equals(a, b) {
 }
 
 
-function calcBundlesNeeded(current, currentCol, target, targetCol, sizeCol) {
-    if (current === undefined || target === undefined) {
-        console.error(current, target)
+function calcBundlesNeeded(item, haveCol, needCol, sizeCol) {
+    if (item === undefined) {
+        throw new Error("Item was unidentified")
     }
 
-    const needQ = target[targetCol];
-
-    if (needQ <= 0) {
-        return 0;
-    }
-
-    const sizeQ = target[sizeCol];
+    const needQ = item[needCol] === "" ? 0 : item[needCol] ?? 0;
+    const haveQ = item[haveCol] === "" ? 0 : item[haveCol] ?? 0;
+    const sizeQ = item[sizeCol] === "" ? 1 : item[sizeCol] ?? -1;
 
     if (sizeQ <= 0) {
-        throw new Error("bundle size cannot be negative: " + target.toString())
-    }
-
-    let haveQ = 0;
-    if (current !== null) {
-        haveQ = current[currentCol];
+        throw new Error("invalid bundle size for " + JSON.stringify(item))
     }
 
     return (needQ - haveQ) / sizeQ;
 }
 
-function _createDiffList(targetData, haveData, joinCol, haveCol, needCol, sizeCol) {
+function _createDiffList(allItems, haveItems, joinCol, haveCol, needCol, sizeCol) {
     const result = []
 
-    for (const targetItem of targetData) {
-        const haveList = loc(haveData, joinCol, targetItem[joinCol])
-        const haveItem = haveList.length > 0 ? haveList[0] : null;
+    for (const item of allItems) {
+        const matches = loc(haveItems, joinCol, item[joinCol])
+        const haveItem = matches.length > 0 ? matches[0] : null;
 
-        let q = calcBundlesNeeded(haveItem, haveCol, targetItem, needCol, sizeCol)
+        const mergedItem = {...haveItem, ...item}
+        let q = calcBundlesNeeded(mergedItem, haveCol, needCol, sizeCol)
         q = Math.trunc(q);
 
         if (q <= 0) {
             continue;
         }
 
-        const out = {...targetItem, ...haveItem, 'to-buy': q}
-
-        //delete out[haveCol]
-        //delete out[needCol]
-        //delete out[sizeCol]
+        const out = {...mergedItem, 'to-buy': q}
 
         result.push(out)
     }
