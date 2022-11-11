@@ -1,5 +1,4 @@
-// module "my-module.js"
-function parse(arr) {
+function parse_(arr) {
     const headers = arr[0]
 
     const dataDicts = []
@@ -25,7 +24,7 @@ function parse(arr) {
     return dataDicts
 }
 
-function inverseParse(dictList) {
+function inverseParse_(dictList) {
     if (dictList.length === 0) {
         return []
     }
@@ -45,7 +44,7 @@ function inverseParse(dictList) {
     return result
 }
 
-function loc(data, column_name, value) {
+function loc_(data, column_name, value) {
     const result = []
 
     if (data.length < 1) {
@@ -55,38 +54,38 @@ function loc(data, column_name, value) {
     }
 
     for (const item of data) {
-        if (equals(item[column_name], value)) {
+        if (equals_(item[column_name], value)) {
             result.push(item)
         }
     }
     return result
 }
 
-function equals(a, b) {
+function equals_(a, b) {
     return a.toString() === b.toString()
 }
 
 
-function _createDiffList(database, inventory, idCol, haveCol, needCol, sizeCol, verbose) {
+function createDiffList_(database, inventory, idCol, haveCol, needCol, sizeCol, verbose) {
     const result = [];
 
     for (const itemEntry of database) {
         if (!itemEntry[idCol]) {
             throw new Error("No identifier found for " + JSON.stringify(itemEntry));
         }
-        const matches = loc(inventory, idCol, itemEntry[idCol]);
+        const matches = loc_(inventory, idCol, itemEntry[idCol]);
 
         const item = {
             ...(matches[0] ?? {}),
             ...itemEntry
         };
 
-        if (!matches[0]) addLog(item, "missing:no equivalent in inventory");
+        if (!matches[0]) addLog_(item, "missing:no equivalent in inventory");
 
         const autofill = function (obj, key, fallbackValue) {
             if (!obj[key] || obj[key] === "") {
                 obj[key] = fallbackValue;
-                addLog(obj, `autofill:${key}=${fallbackValue}`)
+                addLog_(obj, `autofill:${key}=${fallbackValue}`)
             }
         }
         
@@ -110,17 +109,17 @@ function _createDiffList(database, inventory, idCol, haveCol, needCol, sizeCol, 
             throw new Error("No identifier found for " + JSON.stringify(invItem));
         }
 
-        if (loc(database, idCol, invItem[idCol]).length === 0) {
+        if (loc_(database, idCol, invItem[idCol]).length === 0) {
             const item = {...invItem};
-            addLog(item, "missing:no equivalent in database");
+            addLog_(item, "missing:no equivalent in database");
             result.push(item);
         }
     }
 
     if (verbose){
-        result.forEach(item => item["VERBOSE"] = popLog(item));
+        result.forEach(item => item["VERBOSE"] = popLog_(item));
     } else {
-        result.forEach(item => popLog(item));
+        result.forEach(item => popLog_(item));
     }
 
     return result;
@@ -129,12 +128,12 @@ function _createDiffList(database, inventory, idCol, haveCol, needCol, sizeCol, 
 
 const LOG_KEY = "INTERNAL_LOG"
 
-function addLog(obj, text) {
+function addLog_(obj, text) {
     if (!obj[LOG_KEY]) obj[LOG_KEY] = []
     obj[LOG_KEY].push(text)
 }
 
-function popLog(obj) {
+function popLog_(obj) {
     if (obj[LOG_KEY]) {
         const str = obj[LOG_KEY].join("\n")
         delete obj[LOG_KEY]

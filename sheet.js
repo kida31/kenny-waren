@@ -1,18 +1,12 @@
-function onOpen() {
-    // ... 
-    addMenuTNT();
+function getMenu() {
+    getMenu_()
 }
 
-function addMenuTNT() {
-    var ui = SpreadsheetApp.getUi();
-
-    ui.createMenu('T&T')
-        //.addItem('Bestellung (manual)', 'menuItem1')
-        .addItem("Bestellung generieren...", 'menuBestellungGenerieren')
-        .addToUi();
+function processForm_k01(args) {
+    processForm_(args)
 }
 
-function menuBestellungGenerieren() {
+function getMenu_() {
     const ui = HtmlService.createTemplateFromFile('prompt.html')
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -35,7 +29,6 @@ function menuBestellungGenerieren() {
     SpreadsheetApp.getUi().showModalDialog(ui.evaluate(), "Bestellung generieren")
 }
 
-
 /**
  * Erstell Bestellung aus Bestand und Bestellliste
  * @param bestellSheetName Name des Sheets Bestellliste
@@ -49,26 +42,27 @@ function menuBestellungGenerieren() {
  */
 function getShoppingList(bestellSheetName, bestandSheetName, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    return _getShoppingList(
+    return getShoppingList_(
         ss.getSheetByName(bestellSheetName),
         ss.getSheetByName(bestandSheetName),
         joinSpalte, istSpalte, sollSpalte, sizeSpalte);
 }
 
-function _getShoppingList(bestellSheet, bestandSheet, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
-    const bestell = parse(bestellSheet.getDataRange().getValues());
-    const bestand = parse(bestandSheet.getDataRange().getValues());
+function getShoppingList_(bestellSheet, bestandSheet, joinSpalte, istSpalte, sollSpalte, sizeSpalte) {
+    const bestell = parse_(bestellSheet.getDataRange().getValues());
+    const bestand = parse_(bestandSheet.getDataRange().getValues());
 
-    const shoppingList = _createDiffList(bestell, bestand,
+    const shoppingList = createDiffList_(bestell, bestand,
         joinSpalte,
         istSpalte,
         sollSpalte,
-        sizeSpalte)
+        sizeSpalte,
+        CONFIG.verbose)
 
-    return inverseParse(shoppingList)
+    return inverseParse_(shoppingList)
 }
 
-function createSheet(data) {
+function createSheet_(data) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const newSheet = ss.insertSheet()
 
@@ -77,9 +71,10 @@ function createSheet(data) {
     }
 }
 
-function processForm(parameters) {
-    const {bestellSheetName, bestandSheetName, idSpalte, istSpalte, sollSpalte, sizeSpalte} = parameters
+
+function processForm_(args) {
+    const {bestellSheetName, bestandSheetName, idSpalte, istSpalte, sollSpalte, sizeSpalte} = args
     const data = getShoppingList(bestellSheetName, bestandSheetName, idSpalte, istSpalte, sollSpalte, sizeSpalte)
-    createSheet(data)
+    createSheet_(data)
     SpreadsheetApp.getUi().alert("Fertig!")
 }
