@@ -68,9 +68,9 @@ function _getShoppingList(bestellSheet, bestandSheet, joinSpalte, istSpalte, sol
     return inverseParse(shoppingList)
 }
 
-function createSheet(sheetName, data) {
+function createSheet(data) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const newSheet = ss.insertSheet(sheetName)
+    const newSheet = ss.insertSheet()
 
     for (const row of data) {
         newSheet.appendRow(row)
@@ -80,6 +80,6 @@ function createSheet(sheetName, data) {
 function processForm(parameters) {
     const {bestellSheetName, bestandSheetName, idSpalte, istSpalte, sollSpalte, sizeSpalte} = parameters
     const data = getShoppingList(bestellSheetName, bestandSheetName, idSpalte, istSpalte, sollSpalte, sizeSpalte)
-    createSheet("NeueBestellung", data)
+    createSheet(data)
     SpreadsheetApp.getUi().alert("Fertig!")
 }

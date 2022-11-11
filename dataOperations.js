@@ -4,6 +4,7 @@ function parse(arr) {
 
     const dataDicts = []
 
+    /* all rows after header */
     for (const row of arr.slice(1)) {
         const dataset = {}
         for (const [idx, h] of headers.entries()) {
@@ -13,6 +14,11 @@ function parse(arr) {
             }
             dataset[h] = row[idx]
         }
+
+        if (Object.values(dataset).every(value => value === "")) {
+            continue;
+        }
+
         dataDicts.push(dataset)
     }
 
@@ -24,7 +30,7 @@ function inverseParse(dictList) {
         return []
     }
 
-    const headers = Object.keys(dictList[0])
+    const headers = [...new Set(dictList.map(item => Object.keys(item)).flat())]
 
     const result = [headers]
 
@@ -61,42 +67,79 @@ function equals(a, b) {
 }
 
 
-function calcBundlesNeeded(item, haveCol, needCol, sizeCol) {
-    if (item === undefined) {
-        throw new Error("Item was unidentified")
-    }
+function _createDiffList(database, inventory, idCol, haveCol, needCol, sizeCol, verbose) {
+    const result = [];
 
-    const needQ = item[needCol] === "" ? 0 : item[needCol] ?? 0;
-    const haveQ = item[haveCol] === "" ? 0 : item[haveCol] ?? 0;
-    const sizeQ = item[sizeCol] === "" ? 1 : item[sizeCol] ?? -1;
+    for (const itemEntry of database) {
+        if (!itemEntry[idCol]) {
+            throw new Error("No identifier found for " + JSON.stringify(itemEntry));
+        }
+        const matches = loc(inventory, idCol, itemEntry[idCol]);
 
-    if (sizeQ <= 0) {
-        throw new Error("invalid bundle size for " + JSON.stringify(item))
-    }
+        const item = {
+            ...(matches[0] ?? {}),
+            ...itemEntry
+        };
 
-    return (needQ - haveQ) / sizeQ;
-}
+        if (!matches[0]) addLog(item, "missing:no equivalent in inventory");
 
-function _createDiffList(allItems, haveItems, joinCol, haveCol, needCol, sizeCol) {
-    const result = []
+        const autofill = function (obj, key, fallbackValue) {
+            if (!obj[key] || obj[key] === "") {
+                obj[key] = fallbackValue;
+                addLog(obj, `autofill:${key}=${fallbackValue}`)
+            }
+        }
+        
+        autofill(item, needCol, 0)
+        autofill(item, haveCol, 0)
+        autofill(item, sizeCol, 1)
 
-    for (const item of allItems) {
-        const matches = loc(haveItems, joinCol, item[joinCol])
-        const haveItem = matches.length > 0 ? matches[0] : null;
-
-        const mergedItem = {...haveItem, ...item}
-        let q = calcBundlesNeeded(mergedItem, haveCol, needCol, sizeCol)
-        q = Math.trunc(q);
+        const q = Math.trunc((item[needCol] - item[haveCol]) / item[sizeCol]);
 
         if (q <= 0) {
             continue;
         }
 
-        const out = {...mergedItem, 'to-buy': q}
+        item["BUY"] = q
 
-        result.push(out)
+        result.push(item)
+    }
+
+    for (const invItem of inventory) {
+        if (!invItem[idCol]) {
+            throw new Error("No identifier found for " + JSON.stringify(invItem));
+        }
+
+        if (loc(database, idCol, invItem[idCol]).length === 0) {
+            const item = {...invItem};
+            addLog(item, "missing:no equivalent in database");
+            result.push(item);
+        }
+    }
+
+    if (verbose){
+        result.forEach(item => item["VERBOSE"] = popLog(item));
+    } else {
+        result.forEach(item => popLog(item));
     }
 
     return result;
 }
 
+
+const LOG_KEY = "INTERNAL_LOG"
+
+function addLog(obj, text) {
+    if (!obj[LOG_KEY]) obj[LOG_KEY] = []
+    obj[LOG_KEY].push(text)
+}
+
+function popLog(obj) {
+    if (obj[LOG_KEY]) {
+        const str = obj[LOG_KEY].join("\n")
+        delete obj[LOG_KEY]
+        return str
+    }
+
+    return ""
+}
