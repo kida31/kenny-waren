@@ -57,7 +57,7 @@ function getShoppingList_(bestellSheet, bestandSheet, joinSpalte, istSpalte, sol
         istSpalte,
         sollSpalte,
         sizeSpalte,
-        CONFIG.verbose)
+        true)
 
     return inverseParse_(shoppingList)
 }
