@@ -1,5 +1,7 @@
 # kenny quick order function
 
+**NOTE** OUTDATED DESCRIPTION. I have changed this to a library since.
+
 ## How to install
 
 1. Add the library to your project. We will assume you named it `warenbestellung`. If this collides with any other libraries, feel free to change that.
